@@ -1,0 +1,37 @@
+#include <semaphore.h>		//for creating semaphores
+int CC = 0;
+int CI = 0;
+pthread_t S[5];		//5 threads as a student
+pthread_t T;				//1 thread for TA.
+sem_t Tsleep;
+sem_t St;
+sem_t C[3];
+pthread_mutex_t CA;
+void *Teacher()
+{
+	while(1)
+	{
+		sem_wait(&Tsleep);		//Teacher  is currently sleeping.
+		printf("Student awakened the Teacher.\n");
+		while(1)
+		{
+			// locking the occupied chair in Teacher room 
+			pthread_mutex_lock(&CA);
+			if(CC == 0) 
+			{//if chairs are empty, break the loop.
+				pthread_mutex_unlock(&CA);
+				break;
+			}
+			//teacher gets next student on chair.
+			sem_post(&C[CI]);
+			CC--;
+			printf("Student left the chair. Remaining Chairs %d\n", 3 - CC);
+			CI = (CI + 1) % 3;
+			pthread_mutex_unlock(&CA);
+			// unlocking the occupied chair in Teacher room
+            printf("\t Teacher is currently helping the student.\n");
+			sleep(5);
+			sem_post(&St);
+		}
+	}
+}

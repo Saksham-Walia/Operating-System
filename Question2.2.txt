@@ -1,0 +1,35 @@
+void *Student(void *tID) 
+{
+	int t;
+	while(1)
+	{
+		printf("Student %ld is doing project .\n", (long)tID);
+		t = 7;
+		sleep(t);	
+		printf("Student %ld needs help from the Teacher\n", (long)tID);
+		pthread_mutex_lock(&CA);
+		int count = CC;
+		pthread_mutex_unlock(&CA);
+		if(count < 3)		//Student is trying to sit on a chair
+		{
+			if(count == 0)		//If all the chair in vacant , student wakeup the teacher 
+				sem_post(&Tsleep);
+			else
+				printf("Student %ld sat on a chair waiting for the teacher to finish. \n", (long)tID);
+			// lock
+			pthread_mutex_lock(&CA);
+			int index = (CI + CC) % 3;
+			CC++;
+			printf("Student sat on chair.Chairs Remaining: %d\n", 3 - CC);
+			pthread_mutex_unlock(&CA);
+			// unlock
+			sem_wait(&C[index]);		//Student leaves the chair.
+			printf("\t Student %ld is getting help from the teacher. \n", (long)tID);
+			sem_wait(&St);		//Student is waiting.
+			printf("Student %ld left Teacher room.\n",(long)tID);
+		}
+		else 
+			printf("Student %ld will return at another time. \n", (long)tID);
+			//when all the chairs are already occupied
+	}
+}
